@@ -3,15 +3,18 @@
 #include<map>
 #include<list>
 #include<Windows.h>
+#include<fstream>
 
 #include"Crime.h"
 
 using std::cin;
 using std::cout;
 using std::endl;
-#define delimiter cout << "\n-------------------------------------------\n" << endl;
+#define delimiter "\n-------------------------------------------\n"
 
 void print(const std::map<std::string, std::list<Crime>>& base);
+void save_to_file(const std::map<std::string, std::list<Crime>>& base);
+
 
 void main()
 {
@@ -44,6 +47,7 @@ void main()
 	base[licence_plate].push_back(Crime(id, place));
 	print(base);
 
+	save_to_file(base);
 }
 
 void print(const std::map<std::string, std::list<Crime>>& base)
@@ -55,7 +59,27 @@ void print(const std::map<std::string, std::list<Crime>>& base)
 		{
 			cout << "\t" << *jt << ";\n";
 		}
-		delimiter
+		cout << delimiter;
 	}
 
+}
+
+void save_to_file(const std::map<std::string, std::list<Crime>>& base)
+{
+	std::ofstream fout("base.txt");
+
+	for (std::map<std::string, std::list<Crime>>::const_iterator it = base.begin(); it != base.end(); ++it)
+	{
+		fout.width(10);
+		fout << std::left;
+		fout << it->first + ":";
+		for (std::list<Crime>::const_iterator jt = it->second.begin(); jt != it->second.end(); ++jt)
+		{
+			fout << *jt << ", ";
+		}
+		fout << ";";
+		fout << delimiter;
+	}
+	fout.close();
+	system("notepad base.txt");
 }
