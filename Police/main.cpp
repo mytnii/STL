@@ -1,16 +1,18 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include<iostream>
 #include<string>
 #include<map>
 #include<list>
 #include<Windows.h>
 #include<fstream>
+#include<conio.h>
 
 #include"Crime.h"
 
 using std::cin;
 using std::cout;
 using std::endl;
-#define delimiter "\n-------------------------------------------\n"
 
 void print(const std::map<std::string, std::list<Crime>>& base);
 void save_to_file(const std::map<std::string, std::list<Crime>>& base, const std::string& filename);
@@ -51,7 +53,7 @@ void print(const std::map<std::string, std::list<Crime>>& base)
 		{
 			cout << "\t" << *jt << ";\n";
 		}
-		cout << delimiter;
+		cout << "\n---------------------------------------------------------------------------\n";
 	}
 
 }
@@ -89,7 +91,7 @@ void load(std::map<std::string, std::list<Crime>>& base, const std::string& file
 			std::getline(fin, licence_plate, ':');
 			std::getline(fin, crimes);
 			if (crimes.empty())continue;
-			if (crimes.find(',') != std::string::npos)
+			/*if (crimes.find(',') != std::string::npos)
 			{
 				for (int start = 0, end = crimes.find(','); end != std::string::npos; start = end)
 				{
@@ -106,7 +108,24 @@ void load(std::map<std::string, std::list<Crime>>& base, const std::string& file
 				id = std::stoi(crimes.substr(0, crimes.find_first_of(' ')));
 				crimes.erase(0, crimes.find_first_of(' '));
 				base[licence_plate].push_back(Crime(id, place));
+			}*/
+			char* all_crimes = new char[crimes.size()]
+			{
+
+			};
+			strcpy(all_crimes, crimes.c_str());
+			char delimiter[] = ",;";
+			for (char* pch = strtok(all_crimes, delimiter); pch; pch = strtok(NULL, delimiter))
+			{
+				while (*pch == ' ')
+				{
+					++pch;
+				}
+				base[licence_plate].push_back(Crime(atoi(pch), pch + 1));
 			}
+
+			delete[] all_crimes;
+
 		}
 		fin.close();
 	}
