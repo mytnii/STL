@@ -6,7 +6,7 @@
 #include<list>
 #include<Windows.h>
 #include<fstream>
-#include<conio.h>
+//#include<conio.h>
 
 #include"Crime.h"
 
@@ -15,6 +15,8 @@ using std::cout;
 using std::endl;
 
 void print(const std::map<std::string, std::list<Crime>>& base);
+void print(const std::map<std::string, std::list<Crime>>& base, const std::string& licence_plate);
+void print(const std::map<std::string, std::list<Crime>>& base, const std::string& first_plate, const std::string& last_plate);
 void save_to_file(const std::map<std::string, std::list<Crime>>& base, const std::string& filename);
 void load(std::map<std::string, std::list<Crime>>& base, const std::string& filename);
 void add(std::map<std::string, std::list<Crime>>& base);
@@ -35,7 +37,21 @@ void main()
 			{"a001a", {Crime(4, "перекресток Ћенина и ќкт€брьской"), Crime(3, "ул. ќкт€брьска€")}}
 		}*/;
 	load(base, "base.txt");
+	load(base, "base.txt");
+	load(base, "base.txt");
 	print(base);
+
+	/*std::string licence_plate;
+	cout << "¬ведите номер транспортного средства: ";
+	cin >> licence_plate;
+	print(base, licence_plate);*/
+
+	std::string first_plate, last_plate;
+	cout << "¬ведите начальный номерной знак:";
+	cin >> first_plate;
+	cout << "¬ведите конечный номерной знак:";
+	cin >> last_plate;
+	print(base, first_plate, last_plate);
 
 	/*add(base);
 	
@@ -57,6 +73,46 @@ void print(const std::map<std::string, std::list<Crime>>& base)
 	}
 
 }
+
+void print(const std::map<std::string, std::list<Crime>>& base, const std::string& licence_plate)
+{
+	try
+	{
+		cout << licence_plate << ":\n";
+		for (std::list<Crime>::const_iterator it = base.at(licence_plate).begin();
+			it != base.at(licence_plate).end(); ++it)
+		{
+			cout << *it << endl;
+		}
+	}
+	catch (...)
+	{
+		std::cerr << "¬ базе нет такого номера" << endl;
+	}
+}
+
+void print(const std::map<std::string, std::list<Crime>>& base, const std::string& first_plate, const std::string& last_plate)
+{
+	try
+	{
+		for (std::map<std::string, std::list<Crime>>::const_iterator it = base.lower_bound(first_plate);
+			it != base.upper_bound(last_plate);
+			++it
+			)
+		{
+			cout << it->first << ":\n";
+			for (std::list<Crime>::const_iterator jt = it->second.begin(); jt != it->second.end(); ++jt)
+			{
+				cout << *jt << endl;
+			}
+		}
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << endl;
+	}
+}
+
 
 void save_to_file(const std::map<std::string, std::list<Crime>>& base, const std::string& filename)
 {
@@ -109,22 +165,25 @@ void load(std::map<std::string, std::list<Crime>>& base, const std::string& file
 				crimes.erase(0, crimes.find_first_of(' '));
 				base[licence_plate].push_back(Crime(id, place));
 			}*/
-			char* all_crimes = new char[crimes.size()]
+			char* sz_crimes = new char[crimes.size() + 1]{};
 			{
 
 			};
-			strcpy(all_crimes, crimes.c_str());
+			strcpy(sz_crimes, crimes.c_str());
 			char delimiter[] = ",;";
-			for (char* pch = strtok(all_crimes, delimiter); pch; pch = strtok(NULL, delimiter))
+			for (char* pch = strtok(sz_crimes, delimiter); pch; pch = strtok(NULL, delimiter))
 			{
-				while (*pch == ' ')
-				{
-					++pch;
-				}
-				base[licence_plate].push_back(Crime(atoi(pch), pch + 1));
+				while (*pch == ' ')pch++;
+				id = std::atoi(pch);
+				pch = std::strchr(pch, ' ') + 1;
+				if (
+					std::find(base[licence_plate].begin(), base.at(licence_plate).end(), Crime(id, pch))
+					== base[licence_plate].end()
+					)
+				base[licence_plate].push_back(Crime(id, pch));
 			}
 
-			delete[] all_crimes;
+			delete[] sz_crimes;
 
 		}
 		fin.close();

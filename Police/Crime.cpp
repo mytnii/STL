@@ -11,3 +11,4 @@ std::ofstream& operator<<(std::ofstream& ofs, const Crime& obj)
 	ofs << obj.get_id() << " " << obj.get_place();
 	return ofs;
 }
+
